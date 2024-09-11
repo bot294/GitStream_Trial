@@ -37,6 +37,14 @@ automations:
       - action: explain-code-experts@v1 
         args:
           gt: 10 
+# Auto merge PR if the changes are less than 50 lines.
+  auto_merge_small_changes:
+    if:
+      - {{ calc.lines_changed < 50 }}
+    run:
+      - action: auto-merge@v1
+        args:
+          branch: main  # This should be the main branch of the repository
 
 
 # +----------------------------------------------------------------------------+
