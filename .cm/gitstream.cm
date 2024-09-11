@@ -1,6 +1,8 @@
+version: 1
 rules:
   - name: Auto-Merge Small Changes
-    description: Automatically merge pull requests with less than 50 lines of changes.
-    if: pull_request.line_count < 50
+    description: Automatically merge PRs if total lines changed are fewer than 50.
+    conditions:
+      - lines_changed < 50
     actions:
       - merge
