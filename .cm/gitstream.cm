@@ -1,0 +1,6 @@
+rules:
+  - name: Auto-Merge Small Changes
+    description: Automatically merge pull requests with less than 50 lines of changes.
+    if: pull_request.line_count < 50
+    actions:
+      - merge

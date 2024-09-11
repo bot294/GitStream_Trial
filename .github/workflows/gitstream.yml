@@ -1,0 +1,15 @@
+name: gitStream Workflow
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  gitstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run gitStream
+        uses: linear-b/gitstream-action@v1
