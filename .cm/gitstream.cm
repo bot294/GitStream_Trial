@@ -1,31 +1,12 @@
 # -*- mode: yaml -*-
-# +----------------------------------------------------------------------------+
-# | /:\ gitStream: Workflow automation for the code review process.            |
-# +----------------------------------------------------------------------------+
-# | This file contains one or more /:\ gitStream automations:                  |
-# | https:// docs.gitstream.cm                                                 |
-# |                                                                            |
-# | gitStream uses YAML syntax with nunjucks templating via Jinja 2.           |
-# |                                                                            |
-# | Automations follow an "if this, then that" execution format.               |
-# | More info here: https://docs.gitstream.cm/how-it-works/                    |
-# |                                                                            |
-# +----------------------------------------------------------------------------+
-
-# /:\ gitStream Reference Docs: 
-#    Context Variables: https://docs.gitstream.cm/context-variables/
-#    Filter Functions: https://docs.gitstream.cm/filter-functions/
-#    Automation Actions: https://docs.gitstream.cm/automation-actions/
-
+# This example configuration for provides basic automations to get started with gitStream.
+# View the gitStream quickstart for more examples: https://docs.gitstream.cm/examples/
 manifest:
   version: 1.0
 
-# +----------------------------------------------------------------------------+
-# | Automations
-# +----------------------------------------------------------------------------+
 
 automations:
-  # Apply color coded labels to PRs based on the estimated time to review.
+  # Add a label that indicates how many minutes it will take to review the PR.
   estimated_time_to_review:
     if:
       - true
@@ -34,8 +15,7 @@ automations:
         args:
           label: "{{ calc.etr }} min review"
           color: {{ colors.red if (calc.etr >= 20) else ( colors.yellow if (calc.etr >= 5) else colors.green ) }}
-
-  # Flag PRs that are missing a Jira ticket reference in the title or description.
+  # Inform PR authors when they fail to reference Jira tickets in the PR title or description.
   label_missing_jira_info:
     if:
       - {{ not (has.jira_ticket_in_title or has.jira_ticket_in_desc) }}
@@ -44,36 +24,36 @@ automations:
         args:
           label: "missing-jira"
           color: {{ colors.red }}
-
-  # Flag PRs that have unresolved comment threads.
-  label_unresolved_threads:  
+      - action: add-comment@v1
+        args:
+          comment: |
+            This PR is missing a Jira ticket reference in the title or description.
+            Please add a Jira ticket reference to the title or description of this PR.
+  # Post a comment that lists the best experts for the files that were modified.
+  explain_code_experts:
     if:
-      - {{ pr.status == 'open' }}  
-      - {{ pr.unresolved_threads }}
+      - true
     run:
-      - action: add-label@v1
+      - action: explain-code-experts@v1 
         args:
-          label: 🚨 {{ pr.unresolved_threads }} Unresolved Thread(s)
-          color: {{ colors.yellow }}  
-
-  # Flag PRs that delete files to highlight potential refactors that need extra scrutiny.
-  flag_deleted_files:
-    if:
-      - {{ has.deleted_files }}
-    run: 
-      - action: add-label@v1
-        args:
-          label: 🗑️ Deleted files
-          color: {{ colors.orange }}
-
-  # Auto merge PR if the changes are less than 50 lines.
+          gt: 10 
   auto_merge_small_changes:
     if:
-      - {{ calc.lines_changed < 50 }}
+      - {{ calc.lines_changed < 10 }}
     run:
-      - action: auto-merge@v1
+      - action: merge@v1
         args:
           branch: main  # This should be the main branch of the repository
+
+  # Debugging: Label the PR with the number of lines changed.
+  debug_lines_changed:
+    if:
+      - true
+    run:
+      - action: add-label@v1
+        args:
+          label: "Lines Changed: {{ calc.lines_changed }}"
+          color: {{ colors.blue }}
 
 # +----------------------------------------------------------------------------+
 # | Custom Expressions                                                         |
