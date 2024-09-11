@@ -37,22 +37,42 @@ automations:
       - action: explain-code-experts@v1 
         args:
           gt: 10 
+  auto_merge_small_changes:
+    if:
+      - {{ calc.lines_changed < 50 }}
+    run:
+      - action: auto-merge@v1
+        args:
+          branch: main  # This should be the main branch of the repository
 
-
+  # Debugging: Label the PR with the number of lines changed.
+  debug_lines_changed:
+    if:
+      - true
+    run:
+      - action: add-label@v1
+        args:
+          label: "Lines Changed: {{ calc.lines_changed }}"
+          color: {{ colors.blue }}
 
 # +----------------------------------------------------------------------------+
 # | Custom Expressions                                                         |
-# | https://docs.gitstream.cm/how-it-works/#custom-expressions                 |
 # +----------------------------------------------------------------------------+
 
 calc:
   etr: {{ branch | estimatedReviewTime }}
+  lines_changed: {{ pr.diff.files | map(attr='additions') | sum }}  # Calculates the total number of lines added in the PR
 
 has:
   jira_ticket_in_title: {{ pr.title | includes(regex=r/\b[A-Za-z]+-\d+\b/) }}
   jira_ticket_in_desc: {{ pr.description | includes(regex=r/atlassian.net\/browse\/\w{1,}-\d{3,4}/) }}
+  deleted_files: {{ source.diff.files | map(attr='new_file') | match(term='/dev/null') | some }}
 
+# These are all of the colors in GitHub's default label color palette.
 colors:
   red: 'b60205'
+  orange: 'd93f0b'
   yellow: 'fbca04'
   green: '0e8a16'
+  blue: '1d76db'
+  purple: '5319e7'
