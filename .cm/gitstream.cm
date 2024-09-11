@@ -41,7 +41,7 @@ automations:
     if:
       - {{ calc.lines_changed < 50 }}
     run:
-      - action: auto-merge@v1
+      - action: merge@v1
         args:
           branch: main  # This should be the main branch of the repository
 
