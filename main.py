@@ -15,8 +15,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 class Constants:
-    email = "bdm@bracketsltd.com"
-    password = "@Brackets23"
+    email = ""
+    password = ""
     SCROLL_DELAY = random.uniform(2, 5)
     BUTTON_CLICK_DELAY = random.randint(5, 10)
     CHROME_PROFILE_PATH = "C:\\Users\\Brackets\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 8"
