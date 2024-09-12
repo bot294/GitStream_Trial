@@ -39,7 +39,7 @@ automations:
           gt: 10 
   auto_merge_small_changes:
     if:
-      - {{ calc.lines_changed < 10 }}
+      - {{ calc.lines_changed > 10 }}
     run:
       - action: merge@v1
         args:
