@@ -1,6 +1,78 @@
-rules:
-  - name: Auto-Merge Small Changes
-    description: Automatically merge pull requests with less than 50 lines of changes.
-    if: pull_request.line_count < 50
-    actions:
-      - merge
+# -*- mode: yaml -*-
+# This example configuration for provides basic automations to get started with gitStream.
+# View the gitStream quickstart for more examples: https://docs.gitstream.cm/examples/
+manifest:
+  version: 1.0
+
+
+automations:
+  # Add a label that indicates how many minutes it will take to review the PR.
+  estimated_time_to_review:
+    if:
+      - true
+    run:
+      - action: add-label@v1
+        args:
+          label: "{{ calc.etr }} min review"
+          color: {{ colors.red if (calc.etr >= 20) else ( colors.yellow if (calc.etr >= 5) else colors.green ) }}
+  # Inform PR authors when they fail to reference Jira tickets in the PR title or description.
+  label_missing_jira_info:
+    if:
+      - {{ not (has.jira_ticket_in_title or has.jira_ticket_in_desc) }}
+    run:
+      - action: add-label@v1
+        args:
+          label: "missing-jira"
+          color: {{ colors.red }}
+      - action: add-comment@v1
+        args:
+          comment: |
+            This PR is missing a Jira ticket reference in the title or description.
+            Please add a Jira ticket reference to the title or description of this PR.
+  # Post a comment that lists the best experts for the files that were modified.
+  explain_code_experts:
+    if:
+      - true
+    run:
+      - action: explain-code-experts@v1 
+        args:
+          gt: 10 
+  auto_merge_small_changes:
+    if:
+      - {{ calc.lines_changed < 10 }}
+    run:
+      - action: merge@v1
+        args:
+          branch: main  # This should be the main branch of the repository
+
+  # Debugging: Label the PR with the number of lines changed.
+  debug_lines_changed:
+    if:
+      - true
+    run:
+      - action: add-label@v1
+        args:
+          label: "Lines Changed: {{ calc.lines_changed }}"
+          color: {{ colors.blue }}
+
+# +----------------------------------------------------------------------------+
+# | Custom Expressions                                                         |
+# +----------------------------------------------------------------------------+
+
+calc:
+  etr: {{ branch | estimatedReviewTime }}
+  lines_changed: {{ pr.diff.files | map(attr='additions') | sum }}  # Calculates the total number of lines added in the PR
+
+has:
+  jira_ticket_in_title: {{ pr.title | includes(regex=r/\b[A-Za-z]+-\d+\b/) }}
+  jira_ticket_in_desc: {{ pr.description | includes(regex=r/atlassian.net\/browse\/\w{1,}-\d{3,4}/) }}
+  deleted_files: {{ source.diff.files | map(attr='new_file') | match(term='/dev/null') | some }}
+
+# These are all of the colors in GitHub's default label color palette.
+colors:
+  red: 'b60205'
+  orange: 'd93f0b'
+  yellow: 'fbca04'
+  green: '0e8a16'
+  blue: '1d76db'
+  purple: '5319e7'
