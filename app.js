@@ -18,3 +18,4 @@ function logMessage(message) {
 }
 // Example usage
 logMessage("Hello, this is a test message!");
+logMessage("Hello, this is a test2 message!");
