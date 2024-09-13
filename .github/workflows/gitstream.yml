@@ -42,24 +42,29 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Run tests and generate coverage report
+        run: |
+          npm test
+          npm run coverage  # Ensure this command generates coverage/lcov.info
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v1.10
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token is required
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # SonarCloud token is required
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
             -Dsonar.projectKey=<YOUR_PROJECT_KEY>
             -Dsonar.organization=<YOUR_SONARCLOUD_ORGANIZATION_KEY>
             -Dsonar.sources=.
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info  # Modify this for your project's test report
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
 
-      # Post SonarCloud Quality Gate Status
       - name: SonarCloud Quality Gate
         if: always()
         run: |
-          curl -X GET https://sonarcloud.io/api/qualitygates/project_status?projectKey=<YOUR_PROJECT_KEY> \
-          -H 'Authorization: Basic $(echo -n ${SONAR_TOKEN}: | base64)' | jq '.'
+          curl -X GET "https://sonarcloud.io/api/qualitygates/project_status?projectKey=<YOUR_PROJECT_KEY>" \
+          -H "Authorization: Basic $(echo -n ${SONAR_TOKEN}: | base64)" | jq '.'
+
       - name: Evaluate Rules
         uses: linear-b/gitstream-github-action@v2
         id: rules-engine
@@ -71,4 +76,3 @@ jobs:
           installation_id: ${{ github.event.inputs.installation_id }}
           resolver_url: ${{ github.event.inputs.resolver_url }}
           resolver_token: ${{ github.event.inputs.resolver_token }}
-     
