@@ -9,7 +9,7 @@ on:
         description: The Client payload
         required: true
       full_repository:
-        description: the repository name include the owner in `owner/repo_name` format
+        description: the repository name include the owner in owner/repo_name format
         required: true
       head_ref:
         description: the head sha
@@ -45,15 +45,3 @@ jobs:
           installation_id: ${{ github.event.inputs.installation_id }}
           resolver_url: ${{ github.event.inputs.resolver_url }}
           resolver_token: ${{ github.event.inputs.resolver_token }}
-
-      # New step to check JS code standards
-      - name: Lint JS code
-        run: |
-          npm install eslint --save-dev
-          npx eslint app.js
-
-      # Step to ensure Python code standards (if any Python code exists)
-      - name: Lint Python code
-        run: |
-          pip install pylint
-          pylint **/*.py
