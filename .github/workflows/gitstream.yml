@@ -42,7 +42,24 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1.10
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token is required
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # SonarCloud token is required
+        with:
+          args: >
+            -Dsonar.projectKey=<YOUR_PROJECT_KEY>
+            -Dsonar.organization=<YOUR_SONARCLOUD_ORGANIZATION_KEY>
+            -Dsonar.sources=.
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info  # Modify this for your project's test report
 
+      # Post SonarCloud Quality Gate Status
+      - name: SonarCloud Quality Gate
+        if: always()
+        run: |
+          curl -X GET https://sonarcloud.io/api/qualitygates/project_status?projectKey=<YOUR_PROJECT_KEY> \
+          -H 'Authorization: Basic $(echo -n ${SONAR_TOKEN}: | base64)' | jq '.'
       - name: Evaluate Rules
         uses: linear-b/gitstream-github-action@v2
         id: rules-engine
