@@ -1,26 +1,24 @@
 name: gitStream workflow automation
-run-name: |
-  /:\ gitStream: PR #${{ fromJSON(fromJSON(github.event.inputs.client_payload)).pullRequestNumber }} from ${{ github.event.inputs.full_repository }}
 
 on:
   workflow_dispatch:
     inputs:
-      client_payload:
+      client_payload: 
         description: The Client payload
         required: true
       full_repository:
         description: the repository name include the owner in owner/repo_name format
         required: true
-      head_ref:
+      head_ref: 
         description: the head sha
         required: true
-      base_ref:
+      base_ref: 
         description: the base ref 
         required: true
-      installation_id:
+      installation_id: 
         description: the installation id
         required: false
-      resolver_url:
+      resolver_url: 
         description: the resolver url to pass results to
         required: true
       resolver_token:
@@ -30,10 +28,28 @@ on:
 
 jobs:
   gitStream:
-    timeout-minutes: 5
     runs-on: ubuntu-latest
     name: gitStream workflow automation
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1
+        with:
+          sonarToken: ${{ secrets.SONAR_TOKEN }}
+          args: >
+            -Dsonar.projectKey=my_project_key
+            -Dsonar.organization=my_org
+
       - name: Evaluate Rules
         uses: linear-b/gitstream-github-action@v2
         id: rules-engine
@@ -45,23 +61,3 @@ jobs:
           installation_id: ${{ github.event.inputs.installation_id }}
           resolver_url: ${{ github.event.inputs.resolver_url }}
           resolver_token: ${{ github.event.inputs.resolver_token }}
-      # - name: Checkout repository
-      #   uses: actions/checkout@v2
-      
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v2
-      #   with:
-      #     node-version: '14'
-      
-      # - name: Install dependencies
-      #   run: npm install
-
-      # - name: Run ESLint
-      #   run: npm run lint  # Assumes you have the lint command in your package.json
-
-      # - name: Run GitStream rules
-      #   uses: linear-b/gitstream-github-action@v2
-      #   with:
-      #     full_repository: ${{ github.repository }}
-      #     head_ref: ${{ github.event.pull_request.head.ref }}
-      #     base_ref: ${{ github.event.pull_request.base.ref }}
