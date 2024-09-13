@@ -6,6 +6,7 @@ manifest:
 
 
 automations:
+ 
   # Add a label that indicates how many minutes it will take to review the PR.
   estimated_time_to_review:
     if:
@@ -39,7 +40,7 @@ automations:
           gt: 10 
   auto_merge_small_changes:
     if:
-      - {{ calc.lines_changed < 20 }}
+      - {{ calc.lines_changed <1 }}
     run:
       - action: merge@v1
         args:
