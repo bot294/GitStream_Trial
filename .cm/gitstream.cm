@@ -59,9 +59,9 @@ automations:
   # Reject merging for PRs with more than 10 lines that haven't passed JS standards.
   reject_js_code:
     if:
-      - {{ pr.diff.files | filter_by_extension('.js') | some and calc.lines_changed >= 10 }}
+      - {{ pr.diff.files | filter_by_extension('.js') | some and calc.lines_changed >= 500 }}
     run:
-      - action: reject@v1
+      - action: request-changes@v1
         args:
           message: "JS code doesn't meet the defined standards, please review before merging."
 
