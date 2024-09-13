@@ -19,3 +19,5 @@ function logMessage(message) {
 // Example usage
 logMessage("Hello, this is a test message!");
 logMessage("Hello, this is a test2 message!");
+const sensitiveMessage = "Password: 123456";
+logMessage(sensitiveMessage); // Exposes sensitive data in logs
