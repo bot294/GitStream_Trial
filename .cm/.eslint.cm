@@ -1,8 +1,0 @@
-automations:
-  - name: eslint-check
-    on:
-      - pull_request
-    steps:
-      - name: Run ESLint
-        run: |
-          eslint --fix ./src
