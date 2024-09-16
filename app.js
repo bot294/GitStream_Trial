@@ -2,7 +2,7 @@
 function badlyFormattedFunction() {
   var camelCaseVariable = 'This should be snake_case';
   if (true) {
-    console.log('This block is not properly indented');
+    console.log('ok!!! This block is not properly indented');
   }
   // Missing JSDoc comment
   function nestedFunction() {
