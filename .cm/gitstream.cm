@@ -19,7 +19,7 @@ automations:
   # Check for ClickUp ticket links
   clickup_link_check:
     if:
-      - {{ not (pr.description | includes('clickup.com')) }}
+      - {{ pr.description and not (pr.description | includes('clickup.com')) }}
     run:
       - action: add-comment@v1
         args:
@@ -28,7 +28,7 @@ automations:
   # Check for proper description
   description_check:
     if:
-      - {{ pr.description | length < 50 }}
+      - {{ pr.description and pr.description | length < 50 }}
     run:
       - action: add-comment@v1
         args:
@@ -37,7 +37,7 @@ automations:
   # Check for Sonar Quality Gate
   sonar_check:
     if:
-      - {{ not (pr.checks.conclusion.sonarqube == 'success') }}
+      - {{ pr.checks and pr.checks.conclusion and pr.checks.conclusion.sonarqube != 'success' }}
     run:
       - action: add-comment@v1
         args:
@@ -78,5 +78,3 @@ automations:
       - action: add-comment@v1
         args:
           comment: "Please add JSDoc style comments to your code where appropriate."
-
-# You can add more checks based on your specific requirements
