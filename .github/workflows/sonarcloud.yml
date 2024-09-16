@@ -15,20 +15,18 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          python-version: "3.x"
+          node-version: "14"
 
       - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt
+        run: npm install
 
       - name: SonarCloud Scan
         run: |
-          sonar-scanner \
+          npx sonar-scanner \
           -Dsonar.projectKey=my_project_key \
-          -Dsonar.organization=my_organization \
           -Dsonar.sources=./src \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
