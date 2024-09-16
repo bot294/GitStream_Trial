@@ -1,23 +1,14 @@
-// Sum two numbers
-function addNumbers(a, b) {
-  return a + b;
+// This is a poorly formatted function with linting issues
+function badlyFormattedFunction() {
+  var camelCaseVariable = 'This should be snake_case';
+  if (true) {
+    console.log('This block is not properly indented');
+  }
+  // Missing JSDoc comment
+  function nestedFunction() {
+    return 'This function is missing a JSDoc comment';
+  }
+  return camelCaseVariable;
 }
-function subNumbers(a, b) {
-  return a - b;
-}
-// Example usage
-const number1 = 30;
-const number2 = 20;
-const sum = addNumbers(number1, number2);
-const sub = subNumbers(number1, number2);
-console.log(`The sum of ${number1} and ${number2} is ${sum}.`);
-console.log(`The sub of ${number1} and ${number2} is ${sub}.`);
-// Log a message to the console
-function logMessage(message) {
-  console.log(`Message: ${message}`);
-}
-// Example usage
-logMessage("Hello, this is a test message!");
-logMessage("Hello, this is a test2 message!");
-const sensitiveMessage = "Password: 123456";
-logMessage(sensitiveMessage); // Exposes sensitive data in logs
+
+badlyFormattedFunction();
