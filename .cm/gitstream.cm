@@ -1,80 +1,57 @@
-# File: .cm/gitstream.cm
-# GitStream configuration file
-
+# -*- mode: yaml -*-
+# This example configuration for provides basic automations to get started with gitStream.
+# View the gitStream quickstart for more examples: https://docs.gitstream.cm/examples/
 manifest:
   version: 1.0
 
-# Define automated checks
+
 automations:
-  # Check for proper labels
-  label_check:
+  # Add a label that indicates how many minutes it will take to review the PR.
+  estimated_time_to_review:
     if:
       - true
     run:
       - action: add-label@v1
         args:
-          label: "needs-review"
-          color: "#FBCA04"
-
-  # Check for ClickUp ticket links
-  clickup_link_check:
+          label: "{{ calc.etr }} min review"
+          color: {{ colors.red if (calc.etr >= 20) else ( colors.yellow if (calc.etr >= 5) else colors.green ) }}
+  # Inform PR authors when they fail to reference Jira tickets in the PR title or description.
+  label_missing_jira_info:
     if:
-      - {{ pr.description and not (pr.description | includes('clickup.com')) }}
+      - {{ not (has.jira_ticket_in_title or has.jira_ticket_in_desc) }}
     run:
+      - action: add-label@v1
+        args:
+          label: "missing-jira"
+          color: {{ colors.red }}
       - action: add-comment@v1
         args:
-          comment: "Please add a ClickUp ticket link to the PR description."
-
-  # Check for proper description
-  description_check:
+          comment: |
+            This PR is missing a Jira ticket reference in the title or description.
+            Please add a Jira ticket reference to the title or description of this PR.
+  # Post a comment that lists the best experts for the files that were modified.
+  explain_code_experts:
     if:
-      - {{ pr.description and pr.description | length < 50 }}
+      - true
     run:
-      - action: add-comment@v1
+      - action: explain-code-experts@v1 
         args:
-          comment: "Please provide a more detailed description of your changes."
+          gt: 10 
 
-  # Check for Sonar Quality Gate
-  sonar_check:
-    if:
-      - {{ pr.checks and pr.checks.conclusion and pr.checks.conclusion.sonarqube != 'success' }}
-    run:
-      - action: add-comment@v1
-        args:
-          comment: "Please ensure the Sonar Quality Gate passes before merging."
 
-  # Check for proper directory structure
-  directory_structure_check:
-    if:
-      - {{ files | match(regex=r'(enums|classes|interfaces)\/.*\.(js|ts)$') | nope }}
-    run:
-      - action: add-comment@v1
-        args:
-          comment: "Please ensure enums, classes, and interfaces are placed in the appropriate utility directory."
+# +----------------------------------------------------------------------------+
+# | Custom Expressions                                                         |
+# | https://docs.gitstream.cm/how-it-works/#custom-expressions                 |
+# +----------------------------------------------------------------------------+
 
-  # Check for proper naming conventions
-  naming_convention_check:
-    if:
-      - {{ files | match(regex=r'[A-Z][a-z0-9]+([A-Z][a-z0-9]+)*\.js') | nope }}
-    run:
-      - action: add-comment@v1
-        args:
-          comment: "Please use PascalCase for component files and camelCase for other JavaScript/TypeScript files."
+calc:
+  etr: {{ branch | estimatedReviewTime }}
 
-  # Check for test files
-  test_file_check:
-    if:
-      - {{ files | match(regex=r'\.spec\.(js|ts)$') | nope }}
-    run:
-      - action: add-comment@v1
-        args:
-          comment: "Please ensure you've added corresponding test files for your changes."
+has:
+  jira_ticket_in_title: {{ pr.title | includes(regex=r/\b[A-Za-z]+-\d+\b/) }}
+  jira_ticket_in_desc: {{ pr.description | includes(regex=r/atlassian.net\/browse\/\w{1,}-\d{3,4}/) }}
 
-  # Check for proper commenting (basic check)
-  comment_check:
-    if:
-      - {{ files | match(regex=r'\/\*\*[\s\S]*?\*\/') | nope }}
-    run:
-      - action: add-comment@v1
-        args:
-          comment: "Please add JSDoc style comments to your code where appropriate."
+colors:
+  red: 'b60205'
+  yellow: 'fbca04'
+  green: '0e8a16'
