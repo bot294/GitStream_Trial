@@ -1,4 +1,3 @@
-
 automations:
   - name: eslint-check
     on:
