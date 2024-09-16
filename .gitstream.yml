@@ -1,7 +1,0 @@
-version: 1
-rules:
-  - name: Auto-Merge Small Changes
-    description: Automatically merge PRs if changes are fewer than 50 lines.
-    condition: lines_changed < 50
-    actions:
-      - merge
